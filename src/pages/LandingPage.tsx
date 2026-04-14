@@ -77,10 +77,10 @@ export default function LandingPage() {
               <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">How It Works</a>
             </div>
             <div className="flex items-center gap-3">
-              <a href="#/login">
+              <a href="/?view=login">
                 <Button variant="ghost" size="sm">Sign In</Button>
               </a>
-              <a href="#/order">
+              <a href="/?view=order">
                 <Button size="sm">Get Started</Button>
               </a>
             </div>

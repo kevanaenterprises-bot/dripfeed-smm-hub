@@ -6,7 +6,7 @@
  * single overflow-y-auto div, making flex-1/shrink-0 on children no-ops.
  * This native flex-col implementation gives full layout control.
  */
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import type { ReactNode } from 'react'
 import {
   Avatar,
@@ -26,8 +26,10 @@ import {
   Rocket,
   Plus,
   BarChart3,
+  Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { blink } from '../lib/blink'
 
 const SIDEBAR_KEY = 'sidebar_collapsed'
 
@@ -39,16 +41,17 @@ interface NavItemDef {
 }
 
 const NAV_ITEMS: NavItemDef[] = [
-  { href: '#/', icon: <LayoutDashboard className="h-4 w-4" />, label: 'Dashboard' },
-  { href: '#/campaigns', icon: <FileText className="h-4 w-4" />, label: 'Campaigns' },
-  { href: '#/analytics', icon: <BarChart3 className="h-4 w-4" />, label: 'Analytics' },
-  { href: '#/order', icon: <Rocket className="h-4 w-4" />, label: 'New Campaign' },
+  { href: '/?view=dashboard', icon: <LayoutDashboard className="h-4 w-4" />, label: 'Dashboard' },
+  { href: '/?view=campaigns', icon: <FileText className="h-4 w-4" />, label: 'Campaigns' },
+  { href: '/?view=analytics', icon: <BarChart3 className="h-4 w-4" />, label: 'Analytics' },
+  { href: '/?view=order', icon: <Rocket className="h-4 w-4" />, label: 'New Campaign' },
 ]
 
-function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) {
+function NavItem({ item, collapsed, onClick }: { item: NavItemDef; collapsed: boolean; onClick?: () => void }) {
   const link = (
-    <a
-      href={item.href}
+    <button
+      type="button"
+      onClick={onClick}
       className={cn(
         'flex items-center gap-2.5 rounded-md text-sm transition-colors cursor-pointer',
         collapsed ? 'justify-center w-8 h-8 mx-auto' : 'px-3 py-2 w-full',
@@ -59,7 +62,7 @@ function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) 
     >
       <span className="shrink-0">{item.icon}</span>
       {!collapsed && <span className="truncate">{item.label}</span>}
-    </a>
+    </button>
   )
   if (!collapsed) return link
   return (
@@ -75,6 +78,32 @@ export function AppSidebarShell() {
     if (typeof window === 'undefined') return false
     return localStorage.getItem(SIDEBAR_KEY) === 'true'
   })
+  const [currentUser, setCurrentUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [blinkReady, setBlinkReady] = useState(false)
+
+  useEffect(() => {
+    // Small delay to ensure blink is initialized
+    const timer = setTimeout(() => {
+      setBlinkReady(true)
+      blink.auth.me().then(user => {
+        setCurrentUser(user)
+      }).catch(() => {
+        // Not logged in
+      }).finally(() => setLoading(false))
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const handleSignOut = useCallback(() => {
+    if (!blinkReady) return
+    blink.auth.logout()
+  }, [blinkReady])
+
+  const navigateTo = useCallback((href: string) => {
+    // Navigate using query params that App.tsx uses
+    window.location.href = href
+  }, [])
 
   const toggle = useCallback(() => {
     setCollapsed(v => {
@@ -138,7 +167,12 @@ export function AppSidebarShell() {
             </p>
           )}
           {NAV_ITEMS.map(item => (
-            <NavItem key={item.href} item={item} collapsed={collapsed} />
+            <NavItem 
+              key={item.href} 
+              item={item} 
+              collapsed={collapsed} 
+              onClick={() => navigateTo(item.href)} 
+            />
           ))}
         </div>
 
@@ -150,39 +184,73 @@ export function AppSidebarShell() {
           )}
         >
           {/* User row */}
-          {collapsed ? (
+          {loading && (
+            <div className={cn('flex items-center justify-center', collapsed ? 'h-8' : 'px-2 py-1.5')}>
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            </div>
+          )}
+          {!loading && currentUser && collapsed && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <button className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-accent transition-colors cursor-pointer">
                   <Avatar className="h-6 w-6 shrink-0">
-                    <AvatarFallback className="text-[10px] bg-muted">U</AvatarFallback>
+                    <AvatarFallback className="text-[10px] bg-primary text-primary-foreground">
+                      {currentUser.display_name?.[0] || currentUser.email[0].toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                 </button>
               </TooltipTrigger>
-              <TooltipContent side="right">User · user@example.com</TooltipContent>
+              <TooltipContent side="right">{currentUser.display_name || currentUser.email}</TooltipContent>
             </Tooltip>
-          ) : (
+          )}
+          {!loading && currentUser && !collapsed && (
             <button className="flex items-center gap-2 rounded-md hover:bg-accent transition-colors cursor-pointer w-full px-2 py-1.5">
               <Avatar className="h-6 w-6 shrink-0">
-                <AvatarFallback className="text-[10px] bg-muted">U</AvatarFallback>
+                <AvatarFallback className="text-[10px] bg-primary text-primary-foreground">
+                  {currentUser.display_name?.[0] || currentUser.email[0].toUpperCase()}
+                </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0 text-left">
-                <p className="text-xs font-medium leading-tight truncate">User</p>
+                <p className="text-xs font-medium leading-tight truncate">
+                  {currentUser.display_name || 'User'}
+                </p>
                 <p className="text-[10px] text-muted-foreground leading-tight truncate">
-                  user@example.com
+                  {currentUser.email}
                 </p>
               </div>
             </button>
           )}
+          {!loading && !currentUser && (
+            <button 
+              onClick={() => navigateTo('#/order')}
+              className={cn(
+                'flex items-center gap-2 rounded-md hover:bg-accent transition-colors cursor-pointer w-full',
+                collapsed ? 'justify-center h-8 w-8 mx-auto' : 'px-2 py-1.5'
+              )}
+            >
+              <Avatar className="h-6 w-6 shrink-0">
+                <AvatarFallback className="text-[10px] bg-muted">?</AvatarFallback>
+              </Avatar>
+              {!collapsed && (
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-xs font-medium leading-tight truncate">Sign In</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight truncate">
+                    Click to login
+                  </p>
+                </div>
+              )}
+            </button>
+          )}
 
           {/* Sign out */}
-          {collapsed ? (
+          {currentUser && collapsed && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
+                  onClick={handleSignOut}
                   className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground"
                 >
                   <LogOut className="h-4 w-4 shrink-0" />
@@ -190,15 +258,29 @@ export function AppSidebarShell() {
               </TooltipTrigger>
               <TooltipContent side="right">Sign out</TooltipContent>
             </Tooltip>
-          ) : (
+          )}
+          {currentUser && !collapsed && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
+              onClick={handleSignOut}
               className="w-full justify-start px-2 gap-2 text-muted-foreground hover:text-foreground"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Sign out
+            </Button>
+          )}
+          {!currentUser && !collapsed && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateTo('/?view=order')}
+              className="w-full justify-start px-2 gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <Rocket className="h-4 w-4 shrink-0" />
+              Get Started
             </Button>
           )}
         </div>

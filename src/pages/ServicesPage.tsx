@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import { blink } from '../lib/blink'
 import { 
-  Instagram, 
-  Youtube, 
-  Music, 
+  Camera as InstagramIcon,
+  Tv as YoutubeIcon,
+  Music as TikTokIcon, 
   Heart,
   ThumbsUp,
   Users,
@@ -36,9 +36,9 @@ interface Package {
 }
 
 const platformIcons: Record<string, React.ComponentType<{className?: string}>> = {
-  instagram: Instagram,
-  youtube: Youtube,
-  tiktok: Music,
+  instagram: InstagramIcon,
+  youtube: YoutubeIcon,
+  tiktok: TikTokIcon,
   facebook: ThumbsUp,
 }
 

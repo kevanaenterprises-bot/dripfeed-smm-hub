@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { Link } from '@tanstack/react-router'
 import { 
   LayoutDashboard,
   Activity,
@@ -60,14 +59,25 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
+        // Wait for auth to be ready first
+        const user = await blink.auth.me()
+        if (!user) {
+          // Not authenticated - will show landing page instead
+          setLoading(false)
+          return
+        }
+        
         const [cmp, pkg] = await Promise.all([
           blink.db.campaigns.list({ orderBy: { created_at: 'desc' } }),
           blink.db.packages.list()
         ])
-        setCampaigns(cmp)
-        setPackages(pkg)
-      } catch (e) {
+        setCampaigns(cmp || [])
+        setPackages(pkg || [])
+      } catch (e: any) {
         console.error('Failed to load campaigns:', e)
+        // Don't throw - just set empty data
+        setCampaigns([])
+        setPackages([])
       } finally {
         setLoading(false)
       }
@@ -109,12 +119,12 @@ export default function DashboardPage() {
               </h1>
               <p className="text-muted-foreground mt-1">Manage your campaigns</p>
             </div>
-            <Link to="/order">
+            <a href="/?view=order">
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
                 New Campaign
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </header>
@@ -247,9 +257,9 @@ export default function DashboardPage() {
                 const status = statusConfig[campaign.status] || statusConfig.pending
                 
                 return (
-                  <Link 
-                    key={campaign.id} 
-                    to={`/dashboard?view=campaign&id=${campaign.id}`}
+                  <a
+                    key={campaign.id}
+                    href={`/?view=campaign&id=${campaign.id}`}
                     className="block p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all cursor-pointer"
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -273,9 +283,9 @@ export default function DashboardPage() {
                         <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
                           {campaign.status}
                         </Badge>
-                        <a 
-                          href={campaign.target_url} 
-                          target="_blank" 
+                        <a
+                          href={campaign.target_url}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
                           onClick={(e) => e.stopPropagation()}
@@ -284,7 +294,7 @@ export default function DashboardPage() {
                         </a>
                       </div>
                     </div>
-                  </Link>
+                  </a>
                 )
               })}
             </div>

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { 
   ArrowLeft,
   Camera, 
@@ -18,7 +17,6 @@ import {
 } from 'lucide-react'
 import { Button, Input, toast } from '@blinkdotnew/ui'
 import { Service, Package, blink } from '../lib/blink'
-import { Link } from 'react-router-dom'
 
 // Stripe publishable key from environment
 const STRIPE_PUBLISHABLE_KEY = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder'
@@ -53,7 +51,6 @@ const serviceTypeIcons: Record<string, React.ReactNode> = {
 }
 
 export default function OrderPage() {
-  const [searchParams] = useSearchParams()
   const [services, setServices] = useState<Service[]>([])
   const [packages, setPackages] = useState<Package[]>([])
   const [loading, setLoading] = useState(true)
@@ -62,9 +59,9 @@ export default function OrderPage() {
   const [orderId, setOrderId] = useState('')
   const [currentUser, setCurrentUser] = useState<any>(null)
 
-  const [selectedPlatform, setSelectedPlatform] = useState(searchParams.get('platform') || '')
-  const [selectedService, setSelectedService] = useState(searchParams.get('service') || '')
-  const [selectedPackage, setSelectedPackage] = useState(searchParams.get('package') || '')
+  const [selectedPlatform, setSelectedPlatform] = useState(new URLSearchParams(window.location.search).get('platform') || '')
+  const [selectedService, setSelectedService] = useState(new URLSearchParams(window.location.search).get('service') || '')
+  const [selectedPackage, setSelectedPackage] = useState(new URLSearchParams(window.location.search).get('package') || '')
   const [targetUrl, setTargetUrl] = useState('')
   
   // Custom campaign settings

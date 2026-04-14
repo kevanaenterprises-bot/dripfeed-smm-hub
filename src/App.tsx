@@ -6,6 +6,8 @@ import LandingPage from './pages/LandingPage'
 import DashboardPage from './pages/DashboardPage'
 import AnalyticsPage from './pages/AnalyticsPage'
 import CampaignDetailPage from './pages/CampaignDetailPage'
+import OrderPage from './pages/OrderPage'
+import ServicesPage from './pages/ServicesPage'
 
 function getQueryParams() {
   if (typeof window === 'undefined') return {}
@@ -44,20 +46,45 @@ export default function App() {
     )
   }
 
-  if (!isAuthenticated) {
+  // Determine which page to show based on query params
+  const renderPage = () => {
+    // Order/New Campaign page
+    if (query.view === 'order') {
+      return <OrderPage />
+    }
+    // Campaign detail
+    if (query.view === 'campaign' && query.id) {
+      return <CampaignDetailPage />
+    }
+    // Analytics
+    if (query.view === 'analytics') {
+      return <AnalyticsPage />
+    }
+    // Services
+    if (query.view === 'services') {
+      return <ServicesPage />
+    }
+    // Default for authenticated: Dashboard
+    if (isAuthenticated) {
+      return <DashboardPage />
+    }
+    // Not authenticated: Landing page
+    return <LandingPage />
+  }
+
+  // Handle login - redirect to managed auth
+  if (query.view === 'login') {
+    blink.auth.login(window.location.href)
     return (
-      <SharedAppLayout appName="DripFeed">
-        <LandingPage />
-      </SharedAppLayout>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
     )
   }
 
-  const showCampaignDetail = query.view === 'campaign' && query.id
-  const showAnalytics = query.view === 'analytics'
-
   return (
     <SharedAppLayout appName="DripFeed">
-      {showCampaignDetail ? <CampaignDetailPage /> : showAnalytics ? <AnalyticsPage /> : <DashboardPage />}
+      {renderPage()}
     </SharedAppLayout>
   )
 }
