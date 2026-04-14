@@ -218,34 +218,41 @@ export default function OrderPage() {
           {selectedService && (
             <div>
               <label className="text-sm font-medium mb-3 block">Select Package</label>
-              <div className="grid grid-cols-3 gap-3">
-                {filteredPackages.map(pkg => (
-                  <button
-                    key={pkg.id}
-                    type="button"
-                    onClick={() => setSelectedPackage(pkg.id)}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      selectedPackage === pkg.id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-primary/50'
-                    }`}
-                  >
-                    <div className="font-semibold mb-1">{pkg.name}</div>
-                    <div className="text-2xl font-bold text-primary">
-                      ${pkg.price}
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {pkg.quantity} engagements
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {pkg.drip_days} day drip
-                    </div>
-                    {pkg.is_popular === 1 && (
-                      <div className="text-xs text-primary font-medium mt-2">Most Popular</div>
-                    )}
-                  </button>
-                ))}
-              </div>
+              {filteredPackages.length === 0 ? (
+                <div className="p-4 text-center text-muted-foreground">
+                  <p className="mb-2">No packages available for this service.</p>
+                  <p className="text-sm">Debug: Service ID: {selectedService}, Total packages: {packages.length}</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {filteredPackages.map(pkg => (
+                    <button
+                      key={pkg.id}
+                      type="button"
+                      onClick={() => setSelectedPackage(pkg.id)}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        selectedPackage === pkg.id 
+                          ? 'border-primary bg-primary/5' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="font-semibold mb-1">{pkg.name}</div>
+                      <div className="text-2xl font-bold text-primary">
+                        ${pkg.price}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {pkg.quantity} engagements
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {pkg.drip_days} day drip
+                      </div>
+                      {pkg.is_popular === 1 && (
+                        <div className="text-xs text-primary font-medium mt-2">Most Popular</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
