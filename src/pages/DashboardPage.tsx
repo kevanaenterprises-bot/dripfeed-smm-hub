@@ -20,7 +20,7 @@ import {
   Music2
 } from 'lucide-react'
 import { Button, Badge } from '@blinkdotnew/ui'
-import { Service, Package, Campaign, Order } from '../lib/blink'
+import { Service, Package, Campaign, Order, blink } from '../lib/blink'
 
 const platformIcons: Record<string, React.ReactNode> = {
   instagram: <Heart className="w-4 h-4" />,
@@ -234,13 +234,11 @@ export default function DashboardPage() {
               </div>
               <h3 className="text-lg font-semibold mb-2">No campaigns yet</h3>
               <p className="text-muted-foreground mb-4">Start your first campaign to see it here</p>
-              <Link to="/order">
-                <Button>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Campaign
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+              <Button onClick={() => window.location.href = '/order'}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Campaign
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">
@@ -249,9 +247,10 @@ export default function DashboardPage() {
                 const status = statusConfig[campaign.status] || statusConfig.pending
                 
                 return (
-                  <div 
+                  <Link 
                     key={campaign.id} 
-                    className="p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all"
+                    to={`/dashboard?view=campaign&id=${campaign.id}`}
+                    className="block p-4 rounded-xl bg-card border border-border hover:border-primary/30 transition-all cursor-pointer"
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-center gap-3">
@@ -279,12 +278,13 @@ export default function DashboardPage() {
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="p-2 rounded-lg border border-border hover:bg-muted transition-colors"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <ExternalLink className="w-4 h-4" />
                         </a>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 )
               })}
             </div>

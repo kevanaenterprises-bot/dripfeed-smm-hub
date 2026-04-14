@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 // Using standard anchor tags for navigation since we don't have react-router
 import { 
-  Instagram as InstagramIcon, 
-  Youtube as YoutubeIcon, 
-  Facebook as FacebookIcon, 
+  Camera,
+  Tv, 
+  ThumbsUp, 
   Music2 as TikTokIcon, 
   Zap, 
   Clock, 
@@ -14,7 +14,6 @@ import {
   Heart,
   Users,
   Play,
-  ThumbsUp,
   Droplets,
   Link
 } from 'lucide-react'
@@ -22,9 +21,9 @@ import { Button } from '@blinkdotnew/ui'
 import { Service, Package, blink } from '../lib/blink'
 
 const platformIcons: Record<string, React.ReactNode> = {
-  instagram: <InstagramIcon className="w-6 h-6" />,
-  youtube: <YoutubeIcon className="w-6 h-6" />,
-  facebook: <FacebookIcon className="w-6 h-6" />,
+  instagram: <Camera className="w-6 h-6" />,
+  youtube: <Tv className="w-6 h-6" />,
+  facebook: <ThumbsUp className="w-6 h-6" />,
   tiktok: <TikTokIcon className="w-6 h-6" />,
 }
 

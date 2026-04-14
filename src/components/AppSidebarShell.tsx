@@ -25,6 +25,7 @@ import {
   PanelLeft,
   Rocket,
   Plus,
+  BarChart3,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -38,9 +39,10 @@ interface NavItemDef {
 }
 
 const NAV_ITEMS: NavItemDef[] = [
-  { href: '#/', icon: <LayoutDashboard className="h-4 w-4" />, label: 'Campaigns' },
+  { href: '#/', icon: <LayoutDashboard className="h-4 w-4" />, label: 'Dashboard' },
+  { href: '#/campaigns', icon: <FileText className="h-4 w-4" />, label: 'Campaigns' },
+  { href: '#/analytics', icon: <BarChart3 className="h-4 w-4" />, label: 'Analytics' },
   { href: '#/order', icon: <Rocket className="h-4 w-4" />, label: 'New Campaign' },
-  { href: '/settings', icon: <Settings className="h-4 w-4" />, label: 'Settings' },
 ]
 
 function NavItem({ item, collapsed }: { item: NavItemDef; collapsed: boolean }) {

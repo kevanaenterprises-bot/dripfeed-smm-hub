@@ -19,6 +19,7 @@
     "vite": "^8.0.4"
   },
   "dependencies": {
+    "@blinkdotnew/react": "^1.0.2",
     "@blinkdotnew/sdk": "^2.5.0",
     "@blinkdotnew/ui": "0.4.0",
     "@dnd-kit/core": "^6.3.1",
@@ -34,12 +35,14 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
     "glob": "^13.0.6",
+    "hono": "^4.12.12",
     "lucide-react": "^1.8.0",
     "postcss": "8.4.31",
     "react-hook-form": "^7.72.1",
     "react-hot-toast": "^2.6.0",
     "react-responsive": "^10.0.1",
     "recharts": "^3.8.1",
+    "stripe": "^22.0.1",
     "stylelint": "^17.7.0",
     "stylelint-config-standard": "^40.0.0",
     "tailwind-merge": "^3.5.0",
