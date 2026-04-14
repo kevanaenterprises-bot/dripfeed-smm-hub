@@ -60,7 +60,14 @@ export default function DashboardPage() {
     async function loadData() {
       try {
         // Wait for auth to be ready first
-        const user = await blink.auth.me()
+        let user = null
+        try {
+          user = await blink.auth.me()
+        } catch (authError) {
+          // User not logged in - this is okay
+          console.log('User not authenticated')
+        }
+        
         if (!user) {
           // Not authenticated - will show landing page instead
           setLoading(false)

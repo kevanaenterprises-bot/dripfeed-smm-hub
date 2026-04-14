@@ -73,14 +73,22 @@ export default function OrderPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [srv, pkg, user] = await Promise.all([
+        // Load services and packages first
+        const [srv, pkg] = await Promise.all([
           blink.db.services.list({ where: { is_active: '1' } }),
-          blink.db.packages.list({ orderBy: { quantity: 'asc' } }),
-          blink.auth.me()
+          blink.db.packages.list({ orderBy: { quantity: 'asc' } })
         ])
-        setServices(srv)
-        setPackages(pkg)
-        setCurrentUser(user)
+        setServices(srv || [])
+        setPackages(pkg || [])
+        
+        // Try to get user (may fail if not authenticated)
+        try {
+          const user = await blink.auth.me()
+          setCurrentUser(user)
+        } catch (authError) {
+          // User not logged in - this is okay for public pages
+          console.log('User not authenticated (this is fine)')
+        }
       } catch (e) {
         console.error('Failed to load data:', e)
       } finally {
@@ -124,9 +132,9 @@ export default function OrderPage() {
           <p className="text-muted-foreground mb-6">
             Your campaign will start within 1 hour. You'll receive updates as your engagement grows.
           </p>
-          <Link to="/">
+          <a href="/">
             <Button>Back to Home</Button>
-          </Link>
+          </a>
         </div>
       </div>
     )
@@ -137,10 +145,10 @@ export default function OrderPage() {
       {/* Header */}
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
+          <a href="/" className="flex items-center gap-2 text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
             Back to Home
-          </Link>
+          </a>
         </div>
       </header>
 
